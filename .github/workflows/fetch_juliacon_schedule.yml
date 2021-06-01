@@ -5,6 +5,7 @@ on:
   push:
     paths:
      - '.github/workflows/fetch_juliacon_schedule.yml'
+     - 'juliacon2020_schedule/fetch.jl'
 
 jobs:
   fetch_data:
