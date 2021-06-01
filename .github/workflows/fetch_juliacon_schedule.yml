@@ -1,0 +1,33 @@
+name: Fetch JuliaCon2020 schedule
+on:
+  schedule:
+    - cron:  '40 * * * *' # every hour
+  push:
+    paths:
+     - '.github/workflows/fetch_juliacon_schedule.yml'
+
+jobs:
+  fetch_data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache JuliaCon schedule
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-juliacon-schedule
+        with:
+          path: ~/.julia
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Update Data
+        run: |
+          cd juliacon2020_schedule
+          julia --project -e 'import Pkg; Pkg.instantiate(); include("fetch.jl");'
+          cd ..
+      - name: Commit and Push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: fetch juliacon schedule
